@@ -243,7 +243,7 @@ int __init_{locstr}(int argc,char **argv)
                 client, ua_nodeid_type(ua_nsidx, ua_node_id), &c_loc_name##_variant);                           \
             if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(&c_loc_name##_variant) &&                  \
                 c_loc_name##_variant.type == &UA_TYPES[ua_type_enum]) {{                                         \
-                c_loc_name##_buf = *(ua_type*)c_loc_name##_variant.data;                                        \
+                *c_loc_name = *(ua_type*)c_loc_name##_variant.data;                                        \
             }}                                                                                      \
             UA_Variant_clear(&c_loc_name##_variant);                                  \
             pthread_mutex_unlock(&OPCUA_client_wakeup_mutex);                                             \
@@ -275,3 +275,7 @@ void __publish_{locstr}(void)
         pthread_mutex_unlock(&OPCUA_client_wakeup_mutex);
     }}
 }}
+
+
+/* 供 HAL 读取连接状态（本项目自定义） */
+int OPCUA_IsConnected(void) {{ return !OPCUA_is_disconnected; }}
