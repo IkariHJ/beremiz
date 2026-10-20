@@ -241,10 +241,13 @@ int __init_{locstr}(int argc,char **argv)
         if(!OPCUA_is_disconnected && pthread_mutex_trylock(&OPCUA_client_wakeup_mutex) == 0) {{          \
             UA_StatusCode retval = UA_Client_readValueAttribute(                                  \
                 client, ua_nodeid_type(ua_nsidx, ua_node_id), &c_loc_name##_variant);                           \
-            if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(&c_loc_name##_variant) &&                  \
-                c_loc_name##_variant.type == &UA_TYPES[ua_type_enum]) {{                                         \
-                *c_loc_name = *(ua_type*)c_loc_name##_variant.data;                                        \
-            }}                                                                                      \
+            if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(&c_loc_name##_variant)) {{      \
+                *c_loc_name = *(ua_type*)c_loc_name##_variant.data;                               \
+            }} else {{                                                                            \
+                LogError("read %s failed: %s scalar=%d", #c_loc_name,                             \
+                         UA_StatusCode_name(retval),                                              \
+                         UA_Variant_isScalar(&c_loc_name##_variant));                             \
+            }}                                                                                    \
             UA_Variant_clear(&c_loc_name##_variant);                                  \
             pthread_mutex_unlock(&OPCUA_client_wakeup_mutex);                                             \
         }}                                                                                          \
